@@ -10,6 +10,7 @@ touch korার dorkar nai. Files upload/delete/list Telegram admin bot
 import importlib.util
 import os
 import sys
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Query, Header, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
@@ -17,8 +18,6 @@ from fastapi.responses import JSONResponse
 from config import API_KEY
 
 BYPASSERS_DIR = os.path.join(os.path.dirname(__file__), "bypassers")
-
-app = FastAPI(title="Link Bypass API")
 
 # domain-substring -> module object
 _registry: dict[str, object] = {}
@@ -81,9 +80,13 @@ def check_key(x_api_key: str = Header(None)):
         raise HTTPException(status_code=401, detail="Invalid API key")
 
 
-@app.on_event("startup")
-def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     load_bypassers()
+    yield
+
+
+app = FastAPI(title="Link Bypass API", lifespan=lifespan)
 
 
 @app.get("/")
