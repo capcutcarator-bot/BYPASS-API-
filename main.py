@@ -157,3 +157,10 @@ def admin_reload(x_api_key: str = Header(None)):
     check_key(x_api_key)
     load_bypassers()
     return {"status": "success", "supported": list(_registry.keys())}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+        
